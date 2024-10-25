@@ -1,0 +1,23 @@
+http {
+    server {
+        listen 80;
+
+        # Match subdomain requests, e.g., bobi.localhost or bobi.202.78.200.14
+        server_name ${YOUR_NAME}.localhost ${YOUR_NAME}.${IP_SERVER};
+
+        # Serve frontend content
+        location / {
+            root /usr/share/nginx/html;  # Path to frontend build directory
+            try_files $uri $uri/ /index.html;
+        }
+
+        # Optional: Proxy backend requests
+        location /api/ {
+            proxy_pass http://backend_service:3000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+}

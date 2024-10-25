@@ -1,0 +1,29 @@
+services:
+  backend_service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend_service
+    ports:
+      - "3000:3000"  # Maps host port 3000 to container port 3000
+    environment:
+      - NODE_ENV=production
+    networks:
+      - app_network
+
+  frontend_service:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend_service
+    ports:
+      - "5173:5173"  # Maps host port 5173 to container port 5173
+    environment:
+      - YOUR_NAME=YourName
+      - IP_SERVER=0.0.0.0
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge

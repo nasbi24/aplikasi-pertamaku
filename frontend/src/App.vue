@@ -3,22 +3,34 @@ import { ref } from 'vue';
 import CommentSection from './components/CommentSection.vue';
 
 const userId = ref('');
-const users = ref(null);
+const users = ref([]);
 const newEmail = ref('');
 
 const getUser = async () => {
-  const response = await fetch(`http://localhost:3000/api/user/${userId.value}`);
-  users.value = await response.json();
+  try {
+    const response = await fetch(`http://localhost:3000/api/user/${userId.value}`);
+    if (response.ok) {
+      users.value = await response.json();
+    } else {
+      console.error('Failed to fetch user data');
+    }
+  } catch (error) {
+    console.error('Error fetching user:', error);
+  }
 };
 
 const changeEmail = async () => {
-  await fetch('http://localhost:3000/api/change-email', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: `email=${newEmail.value}`,
-  });
+  try {
+    await fetch('http://localhost:3000/api/change-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: newEmail.value }),
+    });
+  } catch (error) {
+    console.error('Error changing email:', error);
+  }
 };
 </script>
 
@@ -29,12 +41,12 @@ const changeEmail = async () => {
       <input v-model="userId" placeholder="Enter User ID" />
       <button @click="getUser">Get User Info</button>
     </div>
-    <div v-if="users">
-      <template v-for="user in users">
+    <div v-if="users.length">
+      <div v-for="(user, index) in users" :key="index">
         <h2>{{ user.name }}</h2>
         <p>Email: {{ user.email }}</p>
         <hr />
-      </template>
+      </div>
     </div>
     <CommentSection />
     <form @submit.prevent="changeEmail">
